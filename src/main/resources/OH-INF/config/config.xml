@@ -73,6 +73,17 @@
 			<description>Item whose commands are spoken on the add-on's own thread, so a rule is free at once: a JSON {"text", "voice", "sink", "volume"} or a plain text. Empty = off.</description>
 			<default>FishAudio_Say</default>
 		</parameter>
+		<parameter name="sinkGuard" type="boolean" groupName="fallback">
+			<label>Sink guard</label>
+			<description>After the clip: put the player's volume back and resume what played before, through the items linked to the sink thing's state/volume/control channels, if the binding did not (Sonos with a music-service queue).</description>
+			<default>true</default>
+		</parameter>
+		<parameter name="sinkGuardSettleSeconds" type="integer" min="0" max="30" groupName="fallback">
+			<label>Sink guard settle (s)</label>
+			<description>Seconds to wait after the clip before the guard looks, so the binding's own restore has had its chance.</description>
+			<default>2</default>
+			<advanced>true</advanced>
+		</parameter>
 		<parameter name="errorItem" type="text" groupName="fallback">
 			<label>Error item</label>
 			<description>String item that receives "HTTP &lt;code&gt; at &lt;time&gt;" when a fish.audio call fails (a rule mails on it). Empty = off.</description>

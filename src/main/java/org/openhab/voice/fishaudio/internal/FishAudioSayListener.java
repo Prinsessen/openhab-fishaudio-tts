@@ -13,6 +13,7 @@ import static org.openhab.voice.fishaudio.internal.FishAudioTTSConstants.*;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,9 +21,18 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.events.Event;
+import org.openhab.core.events.EventPublisher;
 import org.openhab.core.events.EventFilter;
 import org.openhab.core.events.EventSubscriber;
+import org.openhab.core.items.Item;
+import org.openhab.core.items.ItemNotFoundException;
+import org.openhab.core.items.ItemRegistry;
 import org.openhab.core.items.events.ItemCommandEvent;
+import org.openhab.core.items.events.ItemEventFactory;
+import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.link.ItemChannelLinkRegistry;
+import org.openhab.core.types.Command;
+import org.openhab.core.types.TypeParser;
 import org.openhab.core.library.types.PercentType;
 import org.openhab.core.voice.VoiceManager;
 import org.osgi.service.component.annotations.Activate;
@@ -60,6 +70,9 @@ public class FishAudioSayListener implements EventSubscriber {
 
     private final Logger logger = LoggerFactory.getLogger(FishAudioSayListener.class);
     private final VoiceManager voiceManager;
+    private final @Nullable SinkGuard guard;
+    private volatile boolean guardOn = true;
+    private volatile int settleSeconds = 2;
     private final ExecutorService worker = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "fishaudio-say");
         t.setDaemon(true);
@@ -68,15 +81,65 @@ public class FishAudioSayListener implements EventSubscriber {
     private volatile String sayItem = "";
 
     @Activate
-    public FishAudioSayListener(@Reference VoiceManager voiceManager, Map<String, Object> config) {
+    public FishAudioSayListener(@Reference VoiceManager voiceManager, @Reference ItemRegistry itemRegistry,
+            @Reference ItemChannelLinkRegistry linkRegistry, @Reference EventPublisher eventPublisher,
+            Map<String, Object> config) {
         this.voiceManager = voiceManager;
+        this.guard = new SinkGuard(new OpenhabIo(itemRegistry, linkRegistry, eventPublisher));
         configure(config);
     }
 
     /** For tests. */
-    FishAudioSayListener(VoiceManager voiceManager, String sayItem) {
+    FishAudioSayListener(VoiceManager voiceManager, String sayItem, @Nullable SinkGuard guard) {
         this.voiceManager = voiceManager;
         this.sayItem = sayItem;
+        this.guard = guard;
+        this.settleSeconds = 0;
+    }
+
+    /** The guard's view of openHAB: the items linked to the sink thing's channels. */
+    static class OpenhabIo implements SinkGuard.Io {
+        private final ItemRegistry items;
+        private final ItemChannelLinkRegistry links;
+        private final EventPublisher publisher;
+
+        OpenhabIo(ItemRegistry items, ItemChannelLinkRegistry links, EventPublisher publisher) {
+            this.items = items;
+            this.links = links;
+            this.publisher = publisher;
+        }
+
+        @Override
+        public @Nullable String linkedItem(String sink, String channel) {
+            try {
+                Set<String> names = links.getLinkedItemNames(new ChannelUID(sink + ":" + channel));
+                return names.isEmpty() ? null : names.iterator().next();
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+
+        @Override
+        public @Nullable String read(String item) {
+            try {
+                return items.getItem(item).getState().toFullString();
+            } catch (ItemNotFoundException e) {
+                return null;
+            }
+        }
+
+        @Override
+        public void send(String item, String command) {
+            try {
+                Item it = items.getItem(item);
+                Command c = TypeParser.parseCommand(it.getAcceptedCommandTypes(), command);
+                if (c != null) {
+                    publisher.post(ItemEventFactory.createCommandEvent(item, c, TTS_SERVICE_ID));
+                }
+            } catch (ItemNotFoundException e) {
+                // nothing to send to
+            }
+        }
     }
 
     @Modified
@@ -85,8 +148,12 @@ public class FishAudioSayListener implements EventSubscriber {
     }
 
     private void configure(Map<String, Object> config) {
-        sayItem = new Configuration(config).as(FishAudioTTSConfiguration.class).sayItem.trim();
-        logger.info("fish.audio say item: {}", sayItem.isEmpty() ? "off" : sayItem);
+        FishAudioTTSConfiguration c = new Configuration(config).as(FishAudioTTSConfiguration.class);
+        sayItem = c.sayItem.trim();
+        guardOn = c.sinkGuard;
+        settleSeconds = Math.max(0, c.sinkGuardSettleSeconds);
+        logger.info("fish.audio say item: {}, sink guard {}", sayItem.isEmpty() ? "off" : sayItem,
+                guardOn ? "on (settle " + settleSeconds + " s)" : "off");
     }
 
     @Deactivate
@@ -118,11 +185,22 @@ public class FishAudioSayListener implements EventSubscriber {
     }
 
     private void say(SayRequest req) {
+        SinkGuard g = guardOn ? guard : null;
+        SinkGuard.Before before = g != null ? g.before(req.sink()) : null;
         try {
             voiceManager.say(req.text(), req.voice(), req.sink(), req.volume());
             logger.debug("said on {} with {}: {}", req.sink(), req.voice(), req.text());
         } catch (RuntimeException ex) {
             logger.warn("could not say '{}' on {} with {}: {}", req.text(), req.sink(), req.voice(), ex.getMessage());
+        }
+        if (g != null && before != null && !before.nothing()) {
+            try {
+                TimeUnit.SECONDS.sleep(settleSeconds);   // the binding's own restore first
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+            g.after(before);
         }
     }
 

@@ -75,7 +75,7 @@ public class FishAudioSayListenerTest {
     @Test
     public void onlyTheConfiguredItemIsHeardAndSayRunsOffTheCallersThread() throws Exception {
         VoiceManager vm = mock(VoiceManager.class);
-        FishAudioSayListener l = new FishAudioSayListener(vm, "FishAudio_Say");
+        FishAudioSayListener l = new FishAudioSayListener(vm, "FishAudio_Say", null);
         l.receive(ItemEventFactory.createCommandEvent("Other_Item", new StringType("no")));
         l.receive(ItemEventFactory.createCommandEvent("FishAudio_Say",
                 new StringType("{\"text\": \"hi\", \"voice\": \"fishaudio:hal9000\", \"sink\": \"s\", \"volume\": 45}")));

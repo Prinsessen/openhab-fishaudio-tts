@@ -40,4 +40,8 @@ public class FishAudioTTSConfiguration {
     public String errorItem = "FishAudio_LastError";
     /** Item whose commands are spoken on the add-on's own thread (fire and forget for rules); empty = off. */
     public String sayItem = "FishAudio_Say";
+    /** After the clip: put the sink's volume back and resume what played before, if the binding did not (Sonos). */
+    public Boolean sinkGuard = true;
+    /** Seconds to wait after the clip before the guard looks, so the binding's own restore has had its chance. */
+    public Integer sinkGuardSettleSeconds = 2;
 }

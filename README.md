@@ -50,6 +50,12 @@ when they differ from the file's:
 Voice uids are `fishaudio:<id>`. `fishaudio:google-da` and `fishaudio:google-en` are always there
 (Google Translate, no fish.audio call).
 
+**Sink guard.** With a Sonos player that is playing music from a service queue (Spotify), the Sonos
+binding's notification does not reliably resume the music or restore the volume afterwards. The add-on
+reads the player's state and volume before the clip (through the items linked to the sink thing's
+`state`, `volume` and `control` channels), waits two seconds after it, and then puts the volume back and
+sends PLAY if needed. On by default (`sinkGuard`); a sink that is not a thing is left alone.
+
 UI parameters (Settings -> Voice -> fish.audio Text-to-Speech): secrets file path, model and speed
 defaults (the file wins), timeout, Google fallback on/off and its language (`da`), the error item
 (`FishAudio_LastError`, written as `HTTP <code> at <time>` on a failed call - `monitor-fish-audio-credit.js`

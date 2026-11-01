@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1 - 2026-11-01
+
+- Sink guard: after the clip, the player's volume is put back to what it was before and the music is
+  resumed if the binding did not do it (the Sonos binding with a Spotify queue on a Playbar: once it
+  left the player stopped at the announcement volume, once it resumed at volume 2). Through the items
+  linked to the sink thing's state/volume/control channels; `sinkGuard` / `sinkGuardSettleSeconds`.
+- 23 JUnit tests.
+
 ## 1.0.0 - 2026-11-01
 
 First release, for openHAB 5.2 (built in the 5.2.0-SNAPSHOT add-ons reactor).
