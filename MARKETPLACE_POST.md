@@ -35,7 +35,7 @@ HAL 9000 on its Sonos players; it works with any fish.audio voice model and any 
 ## Requirements
 
 - openHAB 5.2, Java 21
-- A fish.audio account with credit, an API key, and the `reference_id` of at least one voice model
+- A fish.audio account with **prepaid API credit** (the API is paid, pay-as-you-go, no subscription - see Cost), an API key, and the `reference_id` of at least one voice model
 - An audio sink (the Sonos binding's players, `webaudio`, `enhancedjavasound`, ...)
 
 ## Configuration
@@ -108,11 +108,19 @@ curl -s -X POST -H 'Content-Type: text/plain' --data 'Hello' \
 
 `curl -s http://localhost:8080/rest/voice/voices` lists the voices the add-on registered.
 
-### Watching the credit
+## Cost
 
-fish.audio bills per character. The add-on does not read your balance; it writes `HTTP 402 at <time>` to the
-error item when the credit is gone and speaks through Google instead. A rule on the error item that mails you
-is enough.
+fish.audio's API is **paid, pay-as-you-go**: no subscription is needed, but the account must hold
+prepaid API credit (the web plans' monthly credits are a different purse). The price list
+(docs.fish.audio, read 2026-11-01) bills text-to-speech per million UTF-8 bytes of input text:
+`s2.1-pro` and `s2-pro` 15 USD, `s1` 15 USD (retires 2026-12-31), `drama-3` 50 USD, and a
+`s2.1-pro-free` model listed at 0 USD (what it limits is not stated on that page; set `model` to try
+it). One English character is one byte, Danish `æøå` are two, so a one-sentence announcement of
+about 100 characters costs around 0.15 US cent with `s2.1-pro`; openHAB's TTS cache keeps every
+clip, so a line that repeats costs nothing the second time. When the credit is gone, fish.audio
+answers HTTP 402; the add-on writes it to the error item and speaks through Google Translate instead
+(free, no key). Watch the balance from a rule if it matters: `GET /wallet/self/api-credit` with the
+same API key returns it.
 
 ## What it does not do
 

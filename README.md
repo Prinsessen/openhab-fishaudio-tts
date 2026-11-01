@@ -65,6 +65,20 @@ defaults (the file wins), timeout, Google fallback on/off and its language (`da`
 (`FishAudio_LastError`, written as `HTTP <code> at <time>` on a failed call - `monitor-fish-audio-credit.js`
 mails on it) and the say item (`FishAudio_Say`).
 
+## Cost
+
+fish.audio's API is **paid, pay-as-you-go**: no subscription is needed, but the account must hold
+prepaid API credit (the web plans' monthly credits are a different purse). The price list
+(docs.fish.audio, read 2026-11-01) bills text-to-speech per million UTF-8 bytes of input text:
+`s2.1-pro` and `s2-pro` 15 USD, `s1` 15 USD (retires 2026-12-31), `drama-3` 50 USD, and a
+`s2.1-pro-free` model listed at 0 USD (what it limits is not stated on that page; set `model` to try
+it). One English character is one byte, Danish `æøå` are two, so a one-sentence announcement of
+about 100 characters costs around 0.15 US cent with `s2.1-pro`; openHAB's TTS cache keeps every
+clip, so a line that repeats costs nothing the second time. When the credit is gone, fish.audio
+answers HTTP 402; the add-on writes it to the error item and speaks through Google Translate instead
+(free, no key). Watch the balance from a rule if it matters: `GET /wallet/self/api-credit` with the
+same API key returns it.
+
 ## Build and deploy
 
 ```bash
