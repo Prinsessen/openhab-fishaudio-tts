@@ -7,6 +7,10 @@ Translate's voice when fish.audio does not answer, so no announcement is lost.
 Why it exists, how it is wired into the house and how to check it: **[docs/SONOS-HAL.md](../../docs/SONOS-HAL.md)**
 (the operating record) and [docs/FISHAUDIO-TTS.md](../../docs/FISHAUDIO-TTS.md) (this add-on).
 
+**Marketplace:** [fish.audio Text-to-Speech (voice add-on)](https://community.openhab.org/t/fish-audio-text-to-speech-voice-add-on/170848)
+on the openHAB community (topic 170848) - install from Settings -> Add-on Store -> Other Add-ons, or the JAR from
+the [releases](https://github.com/Prinsessen/openhab-fishaudio-tts/releases).
+
 ## Use
 
 ```javascript
