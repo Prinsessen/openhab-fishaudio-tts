@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-description:config-descriptions
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:config-description="https://openhab.org/schemas/config-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/config-description/v1.0.0
+		https://openhab.org/schemas/config-description-1.0.0.xsd">
+	<config-description uri="voice:fishaudio">
+		<parameter-group name="authentication">
+			<label>Authentication and voices</label>
+			<description>The API key and the voice models come from the secrets file, never from this page.</description>
+		</parameter-group>
+		<parameter-group name="tts">
+			<label>Synthesis</label>
+			<description>How fish.audio is asked.</description>
+		</parameter-group>
+		<parameter-group name="fallback">
+			<label>Fallback and errors</label>
+			<description>What happens when fish.audio does not answer.</description>
+		</parameter-group>
+		<parameter name="secretsFile" type="text" required="true" groupName="authentication">
+			<label>Secrets file</label>
+			<description>JSON with api_key, reference_id (or a voices list), model, language, speed. Re-read when the file changes.</description>
+			<default>/etc/openhab/secrets/fish-audio.json</default>
+		</parameter>
+		<parameter name="apiKey" type="text" groupName="authentication">
+			<label>API key (override)</label>
+			<description>Only if the key should not come from the secrets file.</description>
+			<context>password</context>
+			<advanced>true</advanced>
+		</parameter>
+		<parameter name="apiUrl" type="text" required="true" groupName="tts">
+			<label>API URL</label>
+			<default>https://api.fish.audio/v1/tts</default>
+			<advanced>true</advanced>
+		</parameter>
+		<parameter name="model" type="text" required="true" groupName="tts">
+			<label>Model</label>
+			<description>Sent as the model header. The secrets file's model wins when present.</description>
+			<default>s2.1-pro</default>
+		</parameter>
+		<parameter name="speed" type="decimal" min="0.5" max="2" groupName="tts">
+			<label>Speed</label>
+			<description>Prosody speed. 0.9 is HAL's unhurried delivery. The secrets file's speed wins when present.</description>
+			<default>0.9</default>
+		</parameter>
+		<parameter name="mp3Bitrate" type="integer" groupName="tts">
+			<label>MP3 bitrate (kbit/s)</label>
+			<default>128</default>
+			<advanced>true</advanced>
+		</parameter>
+		<parameter name="timeoutSeconds" type="integer" min="5" max="120" groupName="tts">
+			<label>Timeout (s)</label>
+			<default>30</default>
+			<advanced>true</advanced>
+		</parameter>
+		<parameter name="fallbackGoogle" type="boolean" groupName="fallback">
+			<label>Fall back to Google Translate</label>
+			<description>When fish.audio fails, speak through Google Translate's voice instead, so no message is lost.</description>
+			<default>true</default>
+		</parameter>
+		<parameter name="fallbackLanguage" type="text" groupName="fallback">
+			<label>Fallback language</label>
+			<description>Language code of the Google voice used as fallback (da = Danish, as the old script did).</description>
+			<default>da</default>
+		</parameter>
+		<parameter name="googleUrl" type="text" groupName="fallback">
+			<label>Google Translate URL</label>
+			<default>https://translate.google.com/translate_tts</default>
+			<advanced>true</advanced>
+		</parameter>
+		<parameter name="errorItem" type="text" groupName="fallback">
+			<label>Error item</label>
+			<description>String item that receives "HTTP &lt;code&gt; at &lt;time&gt;" when a fish.audio call fails (a rule mails on it). Empty = off.</description>
+			<default>FishAudio_LastError</default>
+		</parameter>
+	</config-description>
+</config-description:config-descriptions>
