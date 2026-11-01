@@ -114,6 +114,23 @@ public class FishAudioTTSServiceTest {
     }
 
     @Test
+    public void aVoiceMayHaveItsOwnSpeedAndModel() {
+        FishAudioTTSService s = service(new FishAudioTTSConfiguration(), "{\"api_key\": \"k\", \"model\": \"s2.1-pro\", \"speed\": 0.9, \"voices\": ["
+                + "{\"id\": \"hal9000\", \"label\": \"HAL 9000\", \"reference_id\": \"h1\"},"
+                + "{\"id\": \"nanna\", \"label\": \"Nanna\", \"reference_id\": \"n1\", \"language\": \"da\", \"speed\": 1.1, \"model\": \"s1\"}]}");
+        Voice[] v = s.getAvailableVoices().toArray(new Voice[0]);
+        FishAudioTTSVoice hal = (FishAudioTTSVoice) v[0], nanna = (FishAudioTTSVoice) v[1];
+        assertEquals(0.9, s.speed(hal), 1e-9, "the file's speed");
+        assertEquals("s2.1-pro", s.model(hal));
+        assertEquals(1.1, s.speed(nanna), 1e-9, "its own speed");
+        assertEquals("s1", s.model(nanna));
+        JsonObject b = JsonParser.parseString(s.fishBody("Hej", nanna)).getAsJsonObject();
+        assertEquals(1.1, b.getAsJsonObject("prosody").get("speed").getAsDouble(), 1e-9);
+        assertEquals("da", b.get("language").getAsString());
+        assertEquals("n1", b.get("reference_id").getAsString());
+    }
+
+    @Test
     public void theVoiceListHasTheFishVoicesFirstThenTheTwoGoogleVoices() {
         FishAudioTTSService s = service(new FishAudioTTSConfiguration(), SECRETS);
         Set<Voice> voices = s.getAvailableVoices();

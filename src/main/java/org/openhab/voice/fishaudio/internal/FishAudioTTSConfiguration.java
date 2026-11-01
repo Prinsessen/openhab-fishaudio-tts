@@ -38,4 +38,6 @@ public class FishAudioTTSConfiguration {
     public String fallbackLanguage = "da";
     /** String item that receives "HTTP <code> at <time>" when a fish.audio call fails; empty = off. */
     public String errorItem = "FishAudio_LastError";
+    /** Item whose commands are spoken on the add-on's own thread (fire and forget for rules); empty = off. */
+    public String sayItem = "FishAudio_Say";
 }

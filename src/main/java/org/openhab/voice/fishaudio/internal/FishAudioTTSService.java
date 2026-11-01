@@ -173,7 +173,7 @@ public class FishAudioTTSService extends AbstractCachedTTSService {
     /** The request body, exactly as scripts/tts-fetch.sh sent it (2026-10-30). */
     String fishBody(String text, FishAudioTTSVoice voice) {
         JsonObject prosody = new JsonObject();
-        prosody.addProperty("speed", speed());
+        prosody.addProperty("speed", speed(voice));
         prosody.addProperty("volume", 0);
         JsonObject body = new JsonObject();
         body.addProperty("text", text);
@@ -186,14 +186,32 @@ public class FishAudioTTSService extends AbstractCachedTTSService {
         return gson.toJson(body);
     }
 
-    String model() {
+    /** The voice's own model, else the file's, else the service's. */
+    String model(@Nullable FishAudioTTSVoice voice) {
+        String vm = voice != null ? voice.getModel() : null;
+        if (vm != null) {
+            return vm;
+        }
         String m = secrets.model;
         return m != null && !m.isEmpty() ? m : config.model;
     }
 
-    double speed() {
+    String model() {
+        return model(null);
+    }
+
+    /** The voice's own speed, else the file's, else the service's. */
+    double speed(@Nullable FishAudioTTSVoice voice) {
+        Double vs = voice != null ? voice.getSpeed() : null;
+        if (vs != null) {
+            return vs;
+        }
         Double s = secrets.speed;
         return s != null ? s : config.speed;
+    }
+
+    double speed() {
+        return speed(null);
     }
 
     String apiKey() {
@@ -211,7 +229,7 @@ public class FishAudioTTSService extends AbstractCachedTTSService {
         try {
             ContentResponse response = httpClient.newRequest(config.apiUrl).method(HttpMethod.POST)
                     .timeout(config.timeoutSeconds, TimeUnit.SECONDS).header("Authorization", "Bearer " + key)
-                    .header("Content-Type", "application/json").header("model", model())
+                    .header("Content-Type", "application/json").header("model", model(voice))
                     .content(new StringContentProvider(body, StandardCharsets.UTF_8)).send();
             int status = response.getStatus();
             if (status == 200 && response.getContent().length > 0) {

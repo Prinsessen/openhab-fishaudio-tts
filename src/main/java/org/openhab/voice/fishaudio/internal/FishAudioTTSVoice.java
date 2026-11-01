@@ -30,13 +30,23 @@ public class FishAudioTTSVoice implements Voice {
     private final Locale locale;
     /** Language sent to fish.audio ("en") or Google Translate ("da"). */
     private final String language;
+    /** Per-voice prosody speed and model; null = the file's / the service's. */
+    private final @Nullable Double speed;
+    private final @Nullable String model;
 
     public FishAudioTTSVoice(String id, String label, String referenceId, Locale locale, String language) {
+        this(id, label, referenceId, locale, language, null, null);
+    }
+
+    public FishAudioTTSVoice(String id, String label, String referenceId, Locale locale, String language,
+            @Nullable Double speed, @Nullable String model) {
         this.id = id;
         this.label = label;
         this.referenceId = referenceId;
         this.locale = locale;
         this.language = language;
+        this.speed = speed;
+        this.model = model;
     }
 
     public static FishAudioTTSVoice google(String language, String label) {
@@ -69,6 +79,14 @@ public class FishAudioTTSVoice implements Voice {
 
     public String getLanguage() {
         return language;
+    }
+
+    public @Nullable Double getSpeed() {
+        return speed;
+    }
+
+    public @Nullable String getModel() {
+        return model;
     }
 
     public boolean isGoogle() {

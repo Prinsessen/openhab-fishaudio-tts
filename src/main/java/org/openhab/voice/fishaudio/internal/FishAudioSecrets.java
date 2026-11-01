@@ -28,7 +28,8 @@ import com.google.gson.JsonParser;
  *
  * <pre>
  * {"api_key": "...", "reference_id": "&lt;voice model id&gt;", "model": "s2.1-pro", "language": "en", "speed": 0.9,
- *  "voices": [{"id": "hal9000", "label": "HAL 9000", "reference_id": "...", "locale": "en-US", "language": "en"}]}
+ *  "voices": [{"id": "hal9000", "label": "HAL 9000", "reference_id": "...", "locale": "en-US", "language": "en",
+ *              "speed": 0.9, "model": "s2.1-pro"}]}
  * </pre>
  *
  * {@code voices} is optional: without it the bare {@code reference_id} becomes the voice {@code hal9000}.
@@ -88,8 +89,11 @@ public class FishAudioSecrets {
                     continue;
                 }
                 String lang = str(v, "language", language);
+                Double vSpeed = v.has("speed") && v.get("speed").isJsonPrimitive() ? v.get("speed").getAsDouble() : null;
+                String vModel = v.has("model") ? str(v, "model", "") : null;
                 voices.add(new FishAudioTTSVoice(id, str(v, "label", id), ref,
-                        Locale.forLanguageTag(str(v, "locale", lang)), lang));
+                        Locale.forLanguageTag(str(v, "locale", lang)), lang, vSpeed,
+                        vModel == null || vModel.isEmpty() ? null : vModel));
             }
         }
         String ref = str(o, "reference_id", "");
