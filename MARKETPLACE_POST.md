@@ -38,6 +38,15 @@ HAL 9000 on its Sonos players; it works with any fish.audio voice model and any 
 - A fish.audio account with **prepaid API credit** (the API is paid, pay-as-you-go, no subscription - see Cost), an API key, and the `reference_id` of at least one voice model
 - An audio sink (the Sonos binding's players, `webaudio`, `enhancedjavasound`, ...)
 
+## Getting an API key and a voice
+
+1. Create an account at [fish.audio](https://fish.audio) and open **https://fish.audio/app/developers/get-started/**;
+   click **Get your API key**. The key is shown once; copy it into the secrets file as `api_key`. Existing keys are
+   managed at https://fish.audio/app/api-keys. Never put the key in a `.things` file, a rule or git.
+2. Top up API credit in the same developer area (the API is pay-as-you-go, see Cost).
+3. Pick a voice: open any voice on fish.audio; its page is `https://fish.audio/m/<model-id>`, and the model id (also
+   behind the copy button on the voice page) is the `reference_id`. Your own cloned voice works the same way.
+
 ## Configuration
 
 Create the secrets file (default `/etc/openhab/secrets/fish-audio.json`, readable by the openhab user,

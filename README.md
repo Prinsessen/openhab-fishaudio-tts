@@ -33,6 +33,15 @@ Voices: `fishaudio:hal9000` (or every entry of the secrets file's `voices` list)
 `fishaudio:google-en` (Google Translate, no fish.audio call). Settings -> Voice shows the service; it can
 be the default TTS.
 
+## Getting an API key and a voice
+
+1. Create an account at [fish.audio](https://fish.audio) and open **https://fish.audio/app/developers/get-started/**;
+   click **Get your API key**. The key is shown once; copy it into the secrets file as `api_key`. Existing keys are
+   managed at https://fish.audio/app/api-keys. Never put the key in a `.things` file, a rule or git.
+2. Top up API credit in the same developer area (the API is pay-as-you-go, see Cost).
+3. Pick a voice: open any voice on fish.audio; its page is `https://fish.audio/m/<model-id>`, and the model id (also
+   behind the copy button on the voice page) is the `reference_id`. Your own cloned voice works the same way.
+
 ## Configuration
 
 Nothing is typed into the UI. The service reads `/etc/openhab/secrets/fish-audio.json` (the same file
