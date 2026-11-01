@@ -44,8 +44,8 @@ be the default TTS.
 
 ## Configuration
 
-Nothing is typed into the UI. The service reads `/etc/openhab/secrets/fish-audio.json` (the same file
-`scripts/tts-fetch.sh` uses) and re-reads it when it changes:
+Nothing is typed into the UI. The service reads `/etc/openhab/secrets/fish-audio.json` and re-reads it
+when it changes:
 
 ```json
 {"api_key": "...", "reference_id": "<voice model id>", "model": "s2.1-pro", "language": "en", "speed": 0.9}
