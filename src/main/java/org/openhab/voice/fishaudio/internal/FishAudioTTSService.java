@@ -26,9 +26,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jetty.client.ContentResponse;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.util.StringContentProvider;
+import org.eclipse.jetty.client.StringRequestContent;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.openhab.core.audio.AudioFormat;
 import org.openhab.core.audio.AudioStream;
@@ -39,11 +40,11 @@ import org.openhab.core.events.EventPublisher;
 import org.openhab.core.io.net.http.HttpClientFactory;
 import org.openhab.core.items.events.ItemEventFactory;
 import org.openhab.core.library.types.StringType;
-import org.openhab.core.voice.AbstractCachedTTSService;
-import org.openhab.core.voice.TTSCache;
-import org.openhab.core.voice.TTSException;
-import org.openhab.core.voice.TTSService;
-import org.openhab.core.voice.Voice;
+import org.openhab.core.voice.tts.AbstractCachedTTSService;
+import org.openhab.core.voice.tts.TTSCache;
+import org.openhab.core.voice.tts.TTSException;
+import org.openhab.core.voice.tts.TTSService;
+import org.openhab.core.voice.tts.Voice;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -228,9 +229,9 @@ public class FishAudioTTSService extends AbstractCachedTTSService {
         logger.debug("fish.audio request for voice {}: {} chars", voice.getId(), text.length());
         try {
             ContentResponse response = httpClient.newRequest(config.apiUrl).method(HttpMethod.POST)
-                    .timeout(config.timeoutSeconds, TimeUnit.SECONDS).header("Authorization", "Bearer " + key)
-                    .header("Content-Type", "application/json").header("model", model(voice))
-                    .content(new StringContentProvider(body, StandardCharsets.UTF_8)).send();
+                    .timeout(config.timeoutSeconds, TimeUnit.SECONDS)
+                    .headers(h -> h.put(HttpHeader.AUTHORIZATION, "Bearer " + key).put("model", model(voice)))
+                    .body(new StringRequestContent("application/json", body, StandardCharsets.UTF_8)).send();
             int status = response.getStatus();
             if (status == 200 && response.getContent().length > 0) {
                 return response.getContent();
@@ -254,7 +255,8 @@ public class FishAudioTTSService extends AbstractCachedTTSService {
     private byte[] google(String text, String language) throws TTSException {
         try {
             ContentResponse response = httpClient.newRequest(googleUrl(text, language)).method(HttpMethod.GET)
-                    .timeout(config.timeoutSeconds, TimeUnit.SECONDS).header("User-Agent", "Mozilla/5.0").send();
+                    .timeout(config.timeoutSeconds, TimeUnit.SECONDS)
+                    .headers(h -> h.put(HttpHeader.USER_AGENT, "Mozilla/5.0")).send();
             if (response.getStatus() == 200 && response.getContent().length > 0) {
                 return response.getContent();
             }

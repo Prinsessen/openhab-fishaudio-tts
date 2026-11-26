@@ -22,8 +22,8 @@ import org.eclipse.jetty.client.HttpClient;
 import org.junit.jupiter.api.Test;
 import org.openhab.core.events.Event;
 import org.openhab.core.events.EventPublisher;
-import org.openhab.core.voice.TTSCache;
-import org.openhab.core.voice.Voice;
+import org.openhab.core.voice.tts.TTSCache;
+import org.openhab.core.voice.tts.Voice;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -171,7 +171,7 @@ public class FishAudioTTSServiceTest {
         FishAudioTTSService s = new FishAudioTTSService(mock(HttpClient.class), publisher, mock(TTSCache.class), cfg);
         s.setSecrets(FishAudioSecrets.parse("{\"reference_id\": \"r\"}"));
         FishAudioTTSVoice hal = (FishAudioTTSVoice) s.getAvailableVoices().iterator().next();
-        assertThrows(org.openhab.core.voice.TTSException.class, () -> s.synthesizeForCache("x", hal,
+        assertThrows(org.openhab.core.voice.tts.TTSException.class, () -> s.synthesizeForCache("x", hal,
                 s.getSupportedFormats().iterator().next()));
         verify(publisher, times(1)).post(any(Event.class));
     }

@@ -34,8 +34,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openhab.core.audio.AudioStream;
 import org.openhab.core.events.EventPublisher;
-import org.openhab.core.voice.TTSCache;
-import org.openhab.core.voice.TTSException;
+import org.openhab.core.voice.tts.TTSCache;
+import org.openhab.core.voice.tts.TTSException;
 
 import com.sun.net.httpserver.HttpServer;
 
