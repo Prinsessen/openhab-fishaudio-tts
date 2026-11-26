@@ -11,6 +11,15 @@ Why it exists, how it is wired into the house and how to check it: **[docs/SONOS
 on the openHAB community (Add-on Marketplace > Bundles, topic 170848) - install from Settings -> Add-on Store (Other Add-ons tab), or the JAR from
 the [releases](https://github.com/Prinsessen/openhab-fishaudio-tts/releases).
 
+## Which version for which openHAB
+
+| openHAB | add-on | branch |
+|---|---|---|
+| 5.3 and its snapshots/milestones | 2.0.x | `openhab-5.3` |
+| 5.0 - 5.2 | 1.0.x | `main` |
+
+openHAB 5.3 moved to Jetty 12 and moved the TTS API to `org.openhab.core.voice.tts`, so one JAR cannot serve both.
+
 ## Use
 
 ```javascript
