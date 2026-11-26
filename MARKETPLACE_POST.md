@@ -35,6 +35,7 @@ HAL 9000 on its Sonos players; it works with any fish.audio voice model and any 
 ## Requirements
 
 - openHAB 5.2, Java 21
+- **openHAB 5.3** (Jetty 12): 1.0.1 does not start there - use [2.0.0-beta.1](https://github.com/Prinsessen/openhab-fishaudio-tts/releases/tag/v2.0.0-beta.1), same features, built for 5.3 ([JAR](https://github.com/Prinsessen/openhab-fishaudio-tts/releases/download/v2.0.0-beta.1/org.openhab.voice.fishaudio-2.0.0-beta.1.jar), beta)
 - A fish.audio account with **prepaid API credit** (the API is paid, pay-as-you-go, no subscription - see Cost), an API key, and the `reference_id` of at least one voice model
 - An audio sink (the Sonos binding's players, `webaudio`, `enhancedjavasound`, ...)
 
